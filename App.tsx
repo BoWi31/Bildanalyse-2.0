@@ -10,6 +10,10 @@ export default function App() {
   const [showWritingHelp, setShowWritingHelp] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
+  // Fallback state for image
+  const [imgSrc, setImgSrc] = useState(DUMMY_IMAGE_URL);
+  const [imgError, setImgError] = useState(false);
+
   // Zoom & Pan State
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -79,6 +83,13 @@ export default function App() {
     setIsDragging(false);
   };
 
+  const handleImageError = () => {
+    if (!imgError) {
+      setImgSrc('./placeholder_bild.svg');
+      setImgError(true);
+    }
+  };
+
   useEffect(() => {
     if (isModalOpen) {
       document.body.style.overflow = 'hidden';
@@ -145,10 +156,20 @@ export default function App() {
             <div className="w-full lg:w-[45%]">
               <div className="sticky top-28 bg-white p-3 rounded-[2rem] shadow-2xl border border-slate-200">
                 <div className="relative rounded-[1.5rem] overflow-hidden bg-slate-100 aspect-[4/5] cursor-zoom-in group" onClick={handleOpenModal}>
-                  <img src={DUMMY_IMAGE_URL} alt="Hauptquelle" className="w-full h-full object-contain" />
+                  <img 
+                    src={imgSrc} 
+                    onError={handleImageError}
+                    alt="Hauptquelle" 
+                    className="w-full h-full object-contain" 
+                  />
                   <div className="absolute inset-0 bg-indigo-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="bg-white px-6 py-3 rounded-full font-black uppercase text-xs shadow-xl tracking-widest">Bild analysieren</span>
                   </div>
+                  {imgError && (
+                    <div className="absolute top-4 left-4 right-4 bg-red-600 text-white p-2 rounded-lg text-[10px] font-bold text-center uppercase tracking-widest animate-pulse">
+                      Datei 'freiheit-1830.jpg' nicht gefunden!
+                    </div>
+                  )}
                 </div>
                 <div className="mt-4 p-4 text-center">
                   <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-1">Arbeitsblatt Schritt {currentStep.number}</span>
@@ -365,7 +386,7 @@ export default function App() {
           >
             <img 
               ref={imageRef}
-              src={DUMMY_IMAGE_URL} 
+              src={imgSrc} 
               alt="Vollbild" 
               className="transition-transform duration-75 ease-out select-none shadow-2xl max-h-[90vh] max-w-[90vw]"
               style={{ 
