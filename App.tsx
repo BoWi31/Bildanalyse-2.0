@@ -84,8 +84,10 @@ export default function App() {
   };
 
   const handleImageError = () => {
+    // Falls das Bild fehlschlägt, versuchen wir den Platzhalter
     if (!imgError) {
-      setImgSrc('./placeholder_bild.svg');
+      console.warn("Bild 'freiheit-1830.jpg' konnte nicht geladen werden.");
+      setImgSrc('placeholder_bild.svg');
       setImgError(true);
     }
   };
@@ -167,7 +169,7 @@ export default function App() {
                   </div>
                   {imgError && (
                     <div className="absolute top-4 left-4 right-4 bg-red-600 text-white p-2 rounded-lg text-[10px] font-bold text-center uppercase tracking-widest animate-pulse">
-                      Datei 'freiheit-1830.jpg' nicht gefunden!
+                      DATEI 'FREIHEIT-1830.JPG' NICHT GEFUNDEN!
                     </div>
                   )}
                 </div>
