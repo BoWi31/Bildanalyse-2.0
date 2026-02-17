@@ -176,7 +176,6 @@ export default function App() {
                     </div>
                   )}
                   
-                  {/* Hinweis-Overlay beim Hovern (außer wenn Lupe aktiv ist) */}
                   <div className="absolute inset-0 bg-indigo-900/5 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity flex items-start justify-center pt-6">
                     <span className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-full font-black uppercase text-[10px] shadow-lg tracking-widest text-indigo-900 border border-indigo-100">Klick für Vollbild</span>
                   </div>
@@ -272,15 +271,27 @@ export default function App() {
 
                 {activeStep === 4 && (
                   <div className="my-10 bg-slate-100 p-8 rounded-[3rem] border-4 border-slate-200 shadow-inner">
-                    <h4 className="text-indigo-900 font-black uppercase text-center text-xs tracking-widest mb-10">Wie glaubwürdig ist dieses Bild?</h4>
+                    <h4 className="text-indigo-900 font-black uppercase text-center text-xs tracking-widest mb-10 italic">Wie beurteilst du die Glaubwürdigkeit?</h4>
                     <div className="flex justify-center gap-10 mb-10">
                        <button onClick={() => setAmpelChoice('red')} className={`w-20 h-20 rounded-full border-4 transition-all duration-300 ${ampelChoice === 'red' ? 'bg-red-600 border-indigo-900 scale-110 shadow-2xl' : 'bg-red-200 border-transparent opacity-40 grayscale hover:grayscale-0'}`}></button>
                        <button onClick={() => setAmpelChoice('yellow')} className={`w-20 h-20 rounded-full border-4 transition-all duration-300 ${ampelChoice === 'yellow' ? 'bg-yellow-400 border-indigo-900 scale-110 shadow-2xl' : 'bg-yellow-100 border-transparent opacity-40 grayscale hover:grayscale-0'}`}></button>
                        <button onClick={() => setAmpelChoice('green')} className={`w-20 h-20 rounded-full border-4 transition-all duration-300 ${ampelChoice === 'green' ? 'bg-green-500 border-indigo-900 scale-110 shadow-2xl' : 'bg-green-100 border-transparent opacity-40 grayscale hover:grayscale-0'}`}></button>
                     </div>
                     {ampelChoice && (
-                      <div className="bg-white p-6 rounded-3xl shadow-xl border-2 border-indigo-100 animate-in zoom-in duration-300">
-                        <p className="text-indigo-900 font-bold text-center text-lg italic">{AMPEL_FEEDBACK[ampelChoice]}</p>
+                      <div className={`p-6 rounded-3xl shadow-xl border-2 animate-in zoom-in duration-300 ${AMPEL_FEEDBACK[ampelChoice].correct ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                        <div className="flex items-center gap-3 mb-2">
+                           {AMPEL_FEEDBACK[ampelChoice].correct ? (
+                             <span className="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-black">✓</span>
+                           ) : (
+                             <span className="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-black">!</span>
+                           )}
+                           <h5 className={`font-black uppercase text-sm ${AMPEL_FEEDBACK[ampelChoice].correct ? 'text-green-700' : 'text-red-700'}`}>
+                             {AMPEL_FEEDBACK[ampelChoice].title}
+                           </h5>
+                        </div>
+                        <p className="text-slate-900 font-bold text-base leading-snug italic">
+                          {AMPEL_FEEDBACK[ampelChoice].text}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -326,7 +337,7 @@ export default function App() {
           </div>
         </main>
 
-        {/* Improved Notebook Sidebar: Step specific */}
+        {/* Notebook Sidebar */}
         <div className={`no-print fixed top-16 md:top-20 right-0 bottom-0 bg-white shadow-2xl border-l border-slate-200 transition-all duration-500 z-40 flex flex-col ${showNotebook ? 'w-full md:w-[400px]' : 'w-0 overflow-hidden'}`}>
           <div className="p-6 bg-amber-400 flex items-center justify-between shadow-md">
             <div>
