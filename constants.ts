@@ -5,9 +5,10 @@ export const INSTRUCTION_HINT = "WICHTIG: Nutze das digitale Protokoll für dein
 
 /**
  * BILD-DATEI:
- * Die Datei 'freiheit-1830.jpg' muss im selben Ordner wie die index.html liegen.
+ * Die Datei 'freiheit-1830.jpg' muss im selben Ordner (Root) liegen.
+ * Wir nutzen den direkten Pfad ohne './' für bessere Auflösung auf Webservern.
  */
-export const DUMMY_IMAGE_URL = "./freiheit-1830.jpg";
+export const DUMMY_IMAGE_URL = "freiheit-1830.jpg";
 
 export const CHECKPOINTS = {
   afterStep1: {
