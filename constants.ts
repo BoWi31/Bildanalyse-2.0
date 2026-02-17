@@ -8,7 +8,7 @@ export const INSTRUCTION_HINT = "WICHTIG: Nutze das digitale Protokoll für dein
  * Die Datei 'freiheit-1830.jpg' muss im selben Ordner (Root) liegen.
  * Wir nutzen den direkten Pfad ohne './' für bessere Auflösung auf Webservern.
  */
-export const DUMMY_IMAGE_URL = "freiheit-1830.jpg";
+export const DUMMY_IMAGE_URL = `${import.meta.env.BASE_URL}freiheit-1830.jpg`;
 
 export const CHECKPOINTS = {
   afterStep1: {
