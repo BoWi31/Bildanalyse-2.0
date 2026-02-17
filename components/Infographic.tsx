@@ -3,29 +3,32 @@ import React from 'react';
 import { STEPS, DUMMY_IMAGE_URL } from '../constants';
 import { StepBox } from './StepBox';
 
-export const Infographic: React.FC = () => {
+interface InfographicProps {
+  notes?: Record<number, string>;
+}
+
+export const Infographic: React.FC<InfographicProps> = ({ notes = {} }) => {
   return (
     <div className="print-area w-[210mm] h-[297mm] bg-white mx-auto overflow-hidden flex flex-col p-[12mm] text-indigo-900 border-[12px] border-slate-100 print:border-none">
       
-      {/* Header mit Illustration-Stil */}
+      {/* Header */}
       <header className="flex justify-between items-start mb-8">
         <div className="w-2/3">
           <div className="flex items-center gap-3 mb-2">
             <span className="bg-indigo-900 text-white px-3 py-1 rounded text-xs font-black uppercase tracking-widest">Arbeitsblatt</span>
             <span className="text-slate-400 font-bold text-xs">Geschichte Klasse 7-9</span>
           </div>
-          <h1 className="text-[42px] font-black tracking-tighter leading-none mb-4 uppercase">
+          <h1 className="text-[42px] font-black tracking-tighter leading-none mb-4 uppercase text-left">
             Historische Bildanalyse
           </h1>
           <div className="bg-indigo-50 p-4 rounded-2xl border-l-[8px] border-indigo-900">
-            <p className="text-[14px] font-bold leading-tight">
+            <p className="text-[14px] font-bold leading-tight text-left">
               Untersuche das Revolutionsbild Schritt für Schritt. 
               <span className="block mt-1 text-indigo-700 italic">Nutze die digitale Hilfe für Tipps und Formulierungen!</span>
             </p>
           </div>
         </div>
         
-        {/* Platzhalter für das gedruckte Bild */}
         <div className="w-[120px] h-[150px] border-4 border-indigo-900 rounded-2xl flex flex-col items-center justify-center p-2 bg-slate-50 relative rotate-2 shadow-xl overflow-hidden">
            <img src={DUMMY_IMAGE_URL} alt="Vorschau" className="w-full h-full object-cover opacity-20 grayscale" />
            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2">
@@ -38,7 +41,7 @@ export const Infographic: React.FC = () => {
       {/* Main Table Structure */}
       <main className="flex-grow flex flex-col border-[2px] border-indigo-900 rounded-3xl overflow-hidden">
         {STEPS.map((step) => (
-          <StepBox key={step.number} step={step} />
+          <StepBox key={step.number} step={step} studentNote={notes[step.number]} />
         ))}
       </main>
 
