@@ -24,14 +24,21 @@ export default function App() {
   const [ampelChoice, setAmpelChoice] = useState<null | 'red' | 'yellow' | 'green'>(null);
   const [foundItems, setFoundItems] = useState<string[]>([]);
   const [timelineIndex, setTimelineIndex] = useState(0);
-  const [notes, setNotes] = useState<string>(() => {
-    return localStorage.getItem('analyse_notizen') || '';
+  
+  // New: Object-based notes for each step
+  const [notes, setNotes] = useState<Record<number, string>>(() => {
+    const saved = localStorage.getItem('analyse_notizen_v2');
+    return saved ? JSON.parse(saved) : { 1: '', 2: '', 3: '', 4: '', 5: '' };
   });
   const [showNotebook, setShowNotebook] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('analyse_notizen', notes);
+    localStorage.setItem('analyse_notizen_v2', JSON.stringify(notes));
   }, [notes]);
+
+  const handleNoteChange = (stepNum: number, value: string) => {
+    setNotes(prev => ({ ...prev, [stepNum]: value }));
+  };
 
   const handlePrint = () => {
     window.print();
@@ -84,7 +91,6 @@ export default function App() {
   };
 
   const handleImageError = () => {
-    // Falls das Bild fehlschlägt, versuchen wir den Platzhalter
     if (!imgError) {
       console.warn("Bild 'freiheit-1830.jpg' konnte nicht geladen werden.");
       setImgSrc('placeholder_bild.svg');
@@ -100,7 +106,6 @@ export default function App() {
     }
   }, [isModalOpen]);
 
-  // Check if all correct items are found and no fake items are selected
   const correctIds = CHECKPOINTS.afterStep1.items.filter(i => !i.fake).map(i => i.id);
   const selectedFake = CHECKPOINTS.afterStep1.items.filter(i => i.fake && foundItems.includes(i.id));
   const allCorrectFound = correctIds.every(id => foundItems.includes(id));
@@ -116,9 +121,9 @@ export default function App() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
           </div>
-          <div className="hidden sm:block">
+          <div className="hidden sm:block text-left">
             <h1 className="font-black text-sm uppercase tracking-tighter leading-none">Bild-Labor</h1>
-            <p className="text-[9px] uppercase font-bold text-slate-400 tracking-widest mt-0.5">Geschichte Interaktiv</p>
+            <p className="text-[9px] uppercase font-bold text-slate-400 tracking-widest mt-0.5 text-left">Geschichte Interaktiv</p>
           </div>
         </div>
 
@@ -151,7 +156,7 @@ export default function App() {
       </div>
 
       <div className="flex-grow flex flex-col lg:flex-row relative">
-        <main className={`no-print flex-grow container mx-auto p-4 md:p-8 transition-all duration-500 ${showNotebook ? 'lg:mr-[350px]' : ''}`}>
+        <main className={`no-print flex-grow container mx-auto p-4 md:p-8 transition-all duration-500 ${showNotebook ? 'lg:mr-[400px]' : ''}`}>
           <div className="flex flex-col lg:flex-row gap-8">
             
             {/* Bild-Sektion */}
@@ -216,24 +221,10 @@ export default function App() {
                         );
                       })}
                     </div>
-                    
-                    <div className="mt-8 h-8">
-                      {selectedFake.length > 0 && (
-                        <p className="text-red-300 font-black uppercase text-xs tracking-widest animate-pulse">
-                          Achtung: Einige Dinge gehören nicht ins Bild!
-                        </p>
-                      )}
-                      {allCorrectFound && selectedFake.length === 0 && (
-                        <p className="text-emerald-300 font-black uppercase text-xs tracking-widest animate-bounce">
-                          Spitze! Du hast alles Wichtige gefunden.
-                        </p>
-                      )}
-                    </div>
-
                     <button 
                       disabled={!canProceed}
                       onClick={() => { setShowChallenge(null); setActiveStep(1); }} 
-                      className={`mt-4 px-12 py-5 rounded-full font-black uppercase shadow-2xl transition-all ${canProceed ? 'bg-white text-indigo-900 hover:scale-105 active:scale-95' : 'bg-white/20 text-white/40 cursor-not-allowed'}`}
+                      className={`mt-12 px-12 py-5 rounded-full font-black uppercase shadow-2xl transition-all ${canProceed ? 'bg-white text-indigo-900 hover:scale-105 active:scale-95' : 'bg-white/20 text-white/40 cursor-not-allowed'}`}
                     >
                       Weiter zu Schritt 2
                     </button>
@@ -242,14 +233,12 @@ export default function App() {
 
                 <h3 className="text-xl md:text-2xl font-black italic text-indigo-700 mb-6">"{currentStep.subtitle}"</h3>
                 
-                {/* Historischer Kontext (Schritt 3) */}
                 {activeStep === 2 && (
                   <div className="mb-10 space-y-6">
                     <div className="bg-indigo-50 border-l-[10px] border-indigo-600 p-8 rounded-3xl shadow-inner animate-in slide-in-from-left duration-500">
                        <p className="text-xl font-bold text-indigo-950 leading-relaxed italic">"{currentStep.contextText}"</p>
                     </div>
                     
-                    {/* Interaktive Timeline */}
                     <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white shadow-2xl">
                       <h4 className="text-amber-400 font-black uppercase text-xs tracking-widest mb-6 text-center">Zeitleiste: Die Drei Glorreichen Tage</h4>
                       <div className="flex justify-between mb-8 relative">
@@ -260,24 +249,23 @@ export default function App() {
                       </div>
                       <div className="bg-white/5 p-6 rounded-2xl border border-white/10 min-h-[140px] flex flex-col justify-center animate-in fade-in duration-300">
                         <p className="text-amber-400 font-black text-xs uppercase mb-1 tracking-widest">{CHECKPOINTS.timeline30[timelineIndex].day}</p>
-                        <p className="font-bold text-lg leading-snug">{CHECKPOINTS.timeline30[timelineIndex].event}</p>
+                        <p className="font-bold text-lg leading-snug text-left">{CHECKPOINTS.timeline30[timelineIndex].event}</p>
                       </div>
                     </div>
                   </div>
                 )}
 
-                <p className="text-lg md:text-xl font-bold text-slate-800 mb-8 leading-tight">{currentStep.description}</p>
+                <p className="text-lg md:text-xl font-bold text-slate-800 mb-8 leading-tight text-left">{currentStep.description}</p>
 
                 <div className="space-y-4 mb-auto">
                   {currentStep.points.map((point, i) => (
                     <div key={i} className="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 group hover:border-indigo-200 transition-colors">
                         <span className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-black flex-shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">{i+1}</span>
-                        <p className="text-base md:text-lg font-bold text-slate-900 leading-snug">{point}</p>
+                        <p className="text-base md:text-lg font-bold text-slate-900 leading-snug text-left">{point}</p>
                     </div>
                   ))}
                 </div>
 
-                {/* Interaktive Ampel (Schritt 5) */}
                 {activeStep === 4 && (
                   <div className="my-10 bg-slate-100 p-8 rounded-[3rem] border-4 border-slate-200 shadow-inner">
                     <h4 className="text-indigo-900 font-black uppercase text-center text-xs tracking-widest mb-10">Wie glaubwürdig ist dieses Bild?</h4>
@@ -289,7 +277,6 @@ export default function App() {
                     {ampelChoice && (
                       <div className="bg-white p-6 rounded-3xl shadow-xl border-2 border-indigo-100 animate-in zoom-in duration-300">
                         <p className="text-indigo-900 font-bold text-center text-lg italic">{AMPEL_FEEDBACK[ampelChoice]}</p>
-                        <p className="mt-4 text-[10px] font-black text-slate-400 uppercase text-center tracking-widest">Übertrage dein Urteil nun auf das Arbeitsblatt!</p>
                       </div>
                     )}
                   </div>
@@ -319,13 +306,13 @@ export default function App() {
 
                 <div className="mt-12 flex justify-between items-center">
                   <button disabled={activeStep === 0} onClick={() => setActiveStep(a => a - 1)} className="px-8 py-4 bg-slate-200 text-slate-500 rounded-2xl font-black uppercase disabled:opacity-20 hover:bg-slate-300 transition-colors">Zurück</button>
+                  <button onClick={() => setShowNotebook(true)} className="no-print lg:hidden px-6 py-4 bg-amber-400 rounded-2xl font-black uppercase">Notizen</button>
                   {activeStep === 0 ? (
                     <button onClick={() => setShowChallenge('eye-check')} className="px-10 py-5 bg-amber-500 text-white rounded-2xl font-black uppercase shadow-xl animate-pulse">Checkpoint!</button>
                   ) : activeStep < 4 ? (
                     <button onClick={() => setActiveStep(a => a + 1)} className="px-10 py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase shadow-xl hover:bg-indigo-700">Nächster Schritt</button>
                   ) : (
                     <button onClick={handlePrint} className="px-10 py-5 bg-green-600 text-white rounded-2xl font-black uppercase shadow-xl hover:bg-green-700 flex items-center gap-3">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                       AB Drucken
                     </button>
                   )}
@@ -335,31 +322,45 @@ export default function App() {
           </div>
         </main>
 
-        {/* Notebook Sidebar */}
-        <div className={`no-print fixed top-16 md:top-20 right-0 bottom-0 bg-white shadow-2xl border-l border-slate-200 transition-all duration-500 z-40 flex flex-col ${showNotebook ? 'w-full md:w-[350px]' : 'w-0 overflow-hidden'}`}>
+        {/* Improved Notebook Sidebar: Step specific */}
+        <div className={`no-print fixed top-16 md:top-20 right-0 bottom-0 bg-white shadow-2xl border-l border-slate-200 transition-all duration-500 z-40 flex flex-col ${showNotebook ? 'w-full md:w-[400px]' : 'w-0 overflow-hidden'}`}>
           <div className="p-6 bg-amber-400 flex items-center justify-between shadow-md">
-            <h3 className="font-black uppercase text-amber-950 flex items-center gap-2">Analyse-Protokoll</h3>
+            <div>
+              <h3 className="font-black uppercase text-amber-950 leading-none">Analyse-Protokoll</h3>
+              <p className="text-[10px] font-black uppercase text-amber-900/60 mt-1 tracking-widest italic">Schritt {currentStep.number}: {currentStep.title}</p>
+            </div>
             <button onClick={() => setShowNotebook(false)} className="text-amber-950 p-2 hover:bg-amber-500 rounded-full transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
-          <div className="flex-grow flex flex-col p-6 gap-4">
-             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notiere hier deine Ergebnisse..." className="flex-grow p-6 bg-amber-50 text-amber-950 font-bold text-lg outline-none border-2 border-amber-200 rounded-3xl transition-all resize-none shadow-inner" />
-             <div className="bg-green-50 p-4 rounded-2xl border border-green-100 flex items-center gap-3">
-               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-               <span className="text-[10px] font-black uppercase text-green-700 tracking-widest leading-none">Speichert automatisch...</span>
+          <div className="flex-grow flex flex-col p-6 gap-4 bg-amber-50/30">
+             <div className="mb-2 bg-white/60 p-4 rounded-2xl border border-amber-200">
+               <p className="text-[11px] font-black text-amber-800 uppercase tracking-widest mb-2">Formulierungshilfe:</p>
+               <p className="text-sm italic font-bold text-amber-950 leading-snug">"{currentStep.sentenceStarters[0]}"</p>
+             </div>
+             <textarea 
+                value={notes[currentStep.number]} 
+                onChange={(e) => handleNoteChange(currentStep.number, e.target.value)} 
+                placeholder={`Schreibe hier deine Notizen zu Schritt ${currentStep.number}...`} 
+                className="flex-grow p-6 bg-white text-slate-900 font-bold text-lg outline-none border-4 border-amber-200 rounded-3xl transition-all resize-none shadow-xl focus:border-indigo-600" 
+             />
+             <div className="bg-white p-4 rounded-2xl border border-amber-200 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest leading-none">Auto-Save aktiv</span>
+                </div>
+                <button onClick={handlePrint} className="text-[10px] font-black uppercase text-indigo-600 hover:underline">Vorschau Drucken</button>
              </div>
           </div>
         </div>
       </div>
 
-      {/* Lightbox Modal mit Zoom & Pan */}
+      {/* Lightbox Modal */}
       {isModalOpen && (
         <div 
           className="fixed inset-0 z-[100] bg-black/98 flex flex-col items-center justify-center p-4 animate-in fade-in duration-300 overflow-hidden" 
           onClick={() => setIsModalOpen(false)}
         >
-          {/* Controls Overlay */}
           <div className="absolute top-6 left-6 flex gap-3 z-[110]" onClick={e => e.stopPropagation()}>
              <button onClick={handleZoomIn} className="bg-white/10 hover:bg-white/20 text-white p-4 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90">
                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
@@ -368,18 +369,11 @@ export default function App() {
                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>
              </button>
           </div>
-
           <div className="absolute top-6 right-6 z-[110]" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setIsModalOpen(false)} className="bg-red-600/80 hover:bg-red-600 text-white p-4 rounded-full backdrop-blur-md transition-all active:scale-90">
+            <button onClick={() => setIsModalOpen(false)} className="bg-red-600/80 hover:bg-red-600 text-white p-4 rounded-full transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
-
-          <div className="absolute bottom-6 bg-black/40 px-6 py-2 rounded-full backdrop-blur-md border border-white/10 text-white/70 text-[10px] font-black uppercase tracking-widest pointer-events-none">
-            {scale > 1 ? "Ziehen zum Bewegen • Esc zum Schließen" : "Klicken zum Zoomen • Esc zum Schließen"}
-          </div>
-
-          {/* Image Container */}
           <div 
             className={`w-full h-full flex items-center justify-center ${scale > 1 ? 'cursor-move' : 'cursor-zoom-in'}`}
             onMouseMove={handleMouseMove}
@@ -391,23 +385,17 @@ export default function App() {
               src={imgSrc} 
               alt="Vollbild" 
               className="transition-transform duration-75 ease-out select-none shadow-2xl max-h-[90vh] max-w-[90vw]"
-              style={{ 
-                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-              }}
+              style={{ transform: `translate(${position.x}px, ${position.y}px) scale(${scale})` }}
               onMouseDown={handleMouseDown}
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                if (scale === 1) handleZoomIn(); 
-                else { setScale(1); setPosition({ x: 0, y: 0 }); }
-              }}
+              onClick={(e) => { e.stopPropagation(); if (scale === 1) handleZoomIn(); else { setScale(1); setPosition({ x: 0, y: 0 }); } }}
             />
           </div>
         </div>
       )}
 
-      {/* Print View */}
+      {/* Synchronized Print View */}
       <div className="hidden print:block">
-        <Infographic />
+        <Infographic notes={notes} />
       </div>
     </div>
   );
