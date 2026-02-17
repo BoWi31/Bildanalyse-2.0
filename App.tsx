@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { STEPS, INSTRUCTION_HINT, AMPEL_FEEDBACK, CHECKPOINTS, DUMMY_IMAGE_URL } from './constants';
 import { Infographic } from './components/Infographic';
+import { Magnifier } from './components/Magnifier';
 
 export default function App() {
   const [activeStep, setActiveStep] = useState(0);
@@ -14,7 +15,7 @@ export default function App() {
   const [imgSrc, setImgSrc] = useState(DUMMY_IMAGE_URL);
   const [imgError, setImgError] = useState(false);
 
-  // Zoom & Pan State
+  // Zoom & Pan State for Lightbox
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -159,25 +160,28 @@ export default function App() {
         <main className={`no-print flex-grow container mx-auto p-4 md:p-8 transition-all duration-500 ${showNotebook ? 'lg:mr-[400px]' : ''}`}>
           <div className="flex flex-col lg:flex-row gap-8">
             
-            {/* Bild-Sektion */}
+            {/* Bild-Sektion mit Lupe */}
             <div className="w-full lg:w-[45%]">
               <div className="sticky top-28 bg-white p-3 rounded-[2rem] shadow-2xl border border-slate-200">
-                <div className="relative rounded-[1.5rem] overflow-hidden bg-slate-100 aspect-[4/5] cursor-zoom-in group" onClick={handleOpenModal}>
-                  <img 
+                <div className="relative rounded-[1.5rem] overflow-hidden bg-slate-100 aspect-[4/5] group">
+                  <Magnifier 
                     src={imgSrc} 
-                    onError={handleImageError}
-                    alt="Hauptquelle" 
-                    className="w-full h-full object-contain" 
+                    error={imgError}
+                    onImageClick={handleOpenModal}
                   />
-                  <div className="absolute inset-0 bg-indigo-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="bg-white px-6 py-3 rounded-full font-black uppercase text-xs shadow-xl tracking-widest">Bild analysieren</span>
-                  </div>
+                  
                   {imgError && (
-                    <div className="absolute top-4 left-4 right-4 bg-red-600 text-white p-2 rounded-lg text-[10px] font-bold text-center uppercase tracking-widest animate-pulse">
+                    <div className="absolute top-4 left-4 right-4 bg-red-600 text-white p-2 rounded-lg text-[10px] font-bold text-center uppercase tracking-widest animate-pulse z-20">
                       DATEI 'FREIHEIT-1830.JPG' NICHT GEFUNDEN!
                     </div>
                   )}
+                  
+                  {/* Hinweis-Overlay beim Hovern (außer wenn Lupe aktiv ist) */}
+                  <div className="absolute inset-0 bg-indigo-900/5 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity flex items-start justify-center pt-6">
+                    <span className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-full font-black uppercase text-[10px] shadow-lg tracking-widest text-indigo-900 border border-indigo-100">Klick für Vollbild</span>
+                  </div>
                 </div>
+                
                 <div className="mt-4 p-4 text-center">
                   <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-1">Arbeitsblatt Schritt {currentStep.number}</span>
                   <h2 className="text-2xl font-black text-indigo-900 uppercase tracking-tight leading-none">{currentStep.title}</h2>
