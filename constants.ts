@@ -6,9 +6,8 @@ export const INSTRUCTION_HINT = "WICHTIG: Nutze das digitale Protokoll für dein
 /**
  * BILD-DATEI:
  * Die Datei 'freiheit-1830.jpg' muss im selben Ordner (Root) liegen.
- * Wir nutzen den direkten Pfad ohne './' für bessere Auflösung auf Webservern.
  */
-export const DUMMY_IMAGE_URL = `${import.meta.env.BASE_URL}freiheit-1830.jpg`;
+export const DUMMY_IMAGE_URL = "freiheit-1830.jpg";
 
 export const CHECKPOINTS = {
   afterStep1: {
@@ -79,7 +78,7 @@ export const STEPS: StepData[] = [
     ],
     hints: [
       'Die Barrikaden deuten auf einen Aufstand in einer Stadt hin (Häuserkampf).',
-      'Die Trikolore war unter dem König verboten – sie zu zeigen ist ein Akt der Rebellion.',
+      'Die Trikolore war unter dem König verboten – sie zu zeigen ist ein Act der Rebellion.',
       'Die Frau wirkt fast wie eine griechische Göttin – das nennt man eine Allegorie.'
     ]
   },
@@ -165,7 +164,19 @@ export const STEPS: StepData[] = [
 ];
 
 export const AMPEL_FEEDBACK = {
-  red: "Kritische Sicht: Du bewertest das Bild als heroisierende Propaganda. Es zeigt nicht die Realität, sondern ein Wunschbild des Malers.",
-  yellow: "Differenzierte Sicht: Du erkennst den Wert als Zeitdokument, weißt aber, dass Delacroix viele Details verschönert hat.",
-  green: "Begeisterte Sicht: Du siehst das Bild als perfekte Quelle für die Symbole und die Leidenschaft der Revolutionäre von 1830."
+  red: {
+    title: "Nicht ganz richtig...",
+    text: "Das Bild nur als 'falsch' oder 'Lüge' abzutun, greift zu kurz. Auch wenn es gestellt ist, verrät es uns extrem viel über die Wünsche und Ideale der Menschen von 1830. Historiker nutzen es als Quelle für 'Mentalität' (Denkweise), nicht als Beweisfoto.",
+    correct: false
+  },
+  yellow: {
+    title: "Hervorragend! (Korrekt)",
+    text: "Das ist die historisch präziseste Antwort. Das Bild ist ein 'Mittelding': Es zeigt echte Kleidung und Orte, ist aber eine künstlerische Inszenierung. Man darf es nicht als Foto glauben, aber als Ausdruck der revolutionären Begeisterung ist es unersetzlich.",
+    correct: true
+  },
+  green: {
+    title: "Vorsicht geboten...",
+    text: "Das Bild als 'vollkommen wahr' zu bezeichnen, ist riskant. Eine halbnackte Frau mit Flagge stürmte nie real über Barrikaden. Du übersiehst hier die starke künstlerische Bearbeitung und Idealisierung durch Delacroix.",
+    correct: false
+  }
 };
